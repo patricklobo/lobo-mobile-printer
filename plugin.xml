@@ -43,7 +43,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/MobilePrinter.java" target-dir="src/org/apache/cordova/device" />
+        <source-file src="src/android/MobilePrinter.java" target-dir="src/com/patricklobo" />
     </platform>
 
 </plugin>

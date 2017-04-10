@@ -19,6 +19,7 @@
 package com.patricklobo;
 
 import java.util.TimeZone;
+import java.util.Iterator;
 
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
@@ -81,7 +82,23 @@ public class MobilePrinter extends CordovaPlugin {
         }
         else if("getUnicode".equals(action)) {
             JSONObject r = new JSONObject();
-            r.put("text",new JSONArray(this.unicode("123456789")));
+            JSONArray resp = new JSONArray();
+            JSONObject innerObj = args.getJSONObject(0);
+            JSONArray list = innerObj.getJSONArray("post");
+            System.out.println("Tamanho: " + list.length());
+            for (int i = 0; i < list.length(); i++) {
+                    Object aObj = list.get(i);
+                    if(aObj instanceof String){
+                    System.out.println("String: " + aObj);
+                    byte[] buf = this.unicode((String)aObj);
+                    for (int x = 0; x < buf.length; x++) {
+                                resp.put(buf[x]);
+                            }
+                    } else {
+                        resp.put(aObj);
+                    }
+            }
+            r.put("text",resp);
             callbackContext.success(r);
         }
         else {

@@ -129,17 +129,33 @@ public class MobilePrinter extends CordovaPlugin {
             JSONArray list = innerObj.getJSONArray("post");
             System.out.println("Tamanho: " + list.length());
             for (int i = 0; i < list.length(); i++) {
-                    Object aObj = list.get(i);
+                    try {
+                            JSONObject obj = list.getJSONObject(i);
+                            String codigo = obj.getString("codigo");
+                                byte[] cod = this.qrcode(codigo);
+                            for (int x = 0; x < cod.length; x++) {
+                                resp.put(cod[x]);
+                            }
+                        } catch (JSONException e) {
+                        Object aObj = list.get(i);
                     if(aObj instanceof String){
                     System.out.println("String: " + aObj);
-                    byte[] buf = this.unicode((String)aObj);
-                    for (int x = 0; x < buf.length; x++) {
+            
+                        byte[] buf = this.unicode((String)aObj);
+                                for (int x = 0; x < buf.length; x++) {
                                 resp.put(buf[x]);
                             }
+                       
+                        
                     } else {
                         resp.put(aObj);
+
+                        
+                        }
+                        }
+                    
                     }
-            }
+                    
             r.put("text",resp);
             callbackContext.success(r);
         }

@@ -43,6 +43,14 @@
             </feature>
         </config-file>
 
+        <source-file src="src/android/libs/core-3.3.0.jar" target-dir="libs" framework="true"/>
+        <source-file src="src/android/libs/android-support-v4.jar" target-dir="libs" framework="true"/>
+        <source-file src="src/android/libs/btsdk.jar" target-dir="libs" framework="true" />
+        <source-file src="src/android/libs/sunmiprinter.jar" target-dir="libs" framework="true" />
+
+        <source-file src="src/android/PrinterLib.java" target-dir="src/com/patricklobo" />
+        <source-file src="src/android/PrintService.java" target-dir="src/com/patricklobo" />
+        <source-file src="src/android/BarcodeCreater.java" target-dir="src/com/patricklobo" />
         <source-file src="src/android/MobilePrinter.java" target-dir="src/com/patricklobo" />
     </platform>
 

@@ -21,6 +21,7 @@ package com.patricklobo;
 import java.util.TimeZone;
 import java.util.Iterator;
 
+
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -31,8 +32,49 @@ import org.json.JSONObject;
 
 import android.provider.Settings;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+
+import com.google.zxing.BarcodeFormat;
+import com.sunmi.controller.ICallback;
+import com.sunmi.impl.V1Printer;
+
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
+import android.widget.Toast;
+import android.content.Intent;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import com.zj.btsdk.BluetoothService;
+import com.zj.btsdk.PrintPic;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Bitmap.Config;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
+
+import android.util.Log;
+
 public class MobilePrinter extends CordovaPlugin {
     public static final String TAG = "MobilePrinter";
+    public static int imageWidth=48;
 
     public static String platform;                            // MobilePrinter OS
     public static String uuid;                                // MobilePrinter UUID
@@ -101,6 +143,19 @@ public class MobilePrinter extends CordovaPlugin {
             r.put("text",resp);
             callbackContext.success(r);
         }
+        else if("codigo".equals(action)) {
+            JSONObject r = new JSONObject();
+            JSONObject innerObj = args.getJSONObject(0);
+            String codigo = innerObj.getString("codigo");
+            byte[] qrcode = this.qrcode(codigo);
+            JSONArray resp = new JSONArray();
+            for (int x = 0; x < qrcode.length; x++) {
+                                resp.put(qrcode[x]);
+                            }
+            
+            r.put("codigo",resp);
+            callbackContext.success(r);
+        }
         else {
             return false;
         }
@@ -110,6 +165,25 @@ public class MobilePrinter extends CordovaPlugin {
     //--------------------------------------------------------------------------
     // LOCAL METHODS
     //--------------------------------------------------------------------------
+
+    public byte[] qrcode(String qrcode){
+          Bitmap btMap = BarcodeCreater.encode2dAsBitmap(qrcode,
+          PrintService.imageWidth * 6,
+          PrintService.imageWidth * 6, 2);
+          return getImage(btMap);
+    }
+
+    public byte[] getImage(Bitmap bitmap) {
+
+    int mWidth = bitmap.getWidth();
+    int mHeight = bitmap.getHeight();
+    bitmap = resizeImage(bitmap, imageWidth * 8, mHeight);
+    
+
+    byte[]  bt = PrinterLib.getBitmapData(bitmap);
+bitmap.recycle();
+return bt;
+}
 
     public byte[] unicode(String string){
     try {
@@ -143,11 +217,39 @@ public class MobilePrinter extends CordovaPlugin {
         return platform;
     }
 
+
+    private static Bitmap resizeImage(Bitmap bitmap, int w, int h) {
+        Bitmap BitmapOrg = bitmap;
+        int width = BitmapOrg.getWidth();
+        int height = BitmapOrg.getHeight();
+
+        if(width>w)
+        {
+          float scaleWidth = ((float) w) / width;
+          float scaleHeight = ((float) h) / height+24;
+          Matrix matrix = new Matrix();
+          matrix.postScale(scaleWidth, scaleWidth);
+          Bitmap resizedBitmap = Bitmap.createBitmap(BitmapOrg, 0, 0, width,
+          height, matrix, true);
+          return resizedBitmap;
+        }else{
+          Bitmap resizedBitmap = Bitmap.createBitmap(w, height+24, Config.RGB_565);
+          Canvas canvas = new Canvas(resizedBitmap);
+          Paint paint = new Paint();
+          canvas.drawColor(Color.WHITE);
+          canvas.drawBitmap(bitmap, (w-width)/2, 0, paint);
+          return resizedBitmap;
+        }
+      }
+
     /**
      * Get the device's Universally Unique Identifier (UUID).
      *
      * @return
      */
+
+
+
     public String getUuid() {
         String uuid = Settings.Secure.getString(this.cordova.getActivity().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
         return uuid;

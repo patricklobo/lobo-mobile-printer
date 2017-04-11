@@ -43,7 +43,7 @@
             </feature>
         </config-file>
 
-        <source-file src="src/android/libs/core-3.3.0.jar" target-dir="libs" framework="true"/>
+        <!--<source-file src="src/android/libs/core-3.3.0.jar" target-dir="libs" framework="true"/>-->
         <source-file src="src/android/libs/btsdk.jar" target-dir="libs" framework="true" />
         <source-file src="src/android/libs/sunmiprinter.jar" target-dir="libs" framework="true" />
 
